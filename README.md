@@ -35,26 +35,32 @@ rendergit ../test_folder
 Using aicontextator is simple. Navigate to your project's root directory and run the command.
 
 Basic Commands
-1. Copy the entire project context to your clipboard:
+1. Save the context to a standard file named `context.txt`:
+
+```bash
+aicontextator
+```
+
+2. Copy the entire project context to your clipboard:
 (This is the most common use case)
 
 ```bash
 aicontextator --copy
 ```
 
-2. Save the context to a file:
+3. Save the context to a file:
 
 ```bash
-aicontextator -o context.txt
+aicontextator -o custom.txt
 ```
 
-3. Preview the included files as a tree:
+4. Preview the included files as a tree:
 
 ```bash
 aicontextator --tree-only
 ```
 
-4. Generate the context **WITHOUT** the instructional header:
+5. Generate the context **WITHOUT** the instructional header:
 
 ```bash
 aicontextator --prompt-no-header
