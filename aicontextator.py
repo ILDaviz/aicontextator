@@ -176,7 +176,7 @@ def cli(root_dir: Path, output: str, exclude: tuple, ext: tuple, copy: bool, cou
     """
     A tool to generate a context file from a project, with support for token counting.
     """
-    click.echo(f"Starting context-builder in directory: {root_dir.resolve()}")
+    click.secho(f"Starting context-builder in directory: {root_dir.resolve()}", fg='green', bold=True)
     
     filtered_files = filter_project_files(root_dir, list(exclude), list(ext))
 
