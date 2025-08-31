@@ -87,7 +87,6 @@ def test_generate_context_concatenation(project_structure: Path):
         count_tokens=False,
         max_tokens=None, 
         warn_tokens=None, 
-        model="",
         prompt_no_header=True
     )
     
@@ -118,7 +117,6 @@ def test_generate_context_token_splitting(project_structure: Path, mocker):
         count_tokens=True, 
         max_tokens=35, 
         warn_tokens=None, 
-        model="gpt-4o",
         prompt_no_header=False
     )
     

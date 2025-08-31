@@ -97,14 +97,12 @@ def generate_context(
     count_tokens: bool,
     max_tokens: int,
     warn_tokens: int,
-    model: str,
     prompt_no_header: bool
 ) -> tuple[list[str], list[int]]:
     """Generates the context string, handling token counting and splitting if needed."""
     if count_tokens:
         try:
             encoding = tiktoken.get_encoding("cl100k_base")
-            click.echo(f"Token counting enabled (estimating for '{model}' with 'cl100k_base').")
             _count = lambda text: len(encoding.encode(text, disallowed_special=()))
         except Exception as e:
             click.secho(f"Error initializing tiktoken: {e}. Disabling token counting.", fg='red')
@@ -172,10 +170,9 @@ def generate_context(
 @click.option('--count-tokens', is_flag=True, help='Enable token counting.')
 @click.option('--max-tokens', type=int, default=None, help='Maximum number of tokens per file. Splits the output if exceeded.')
 @click.option('--warn-tokens', type=int, default=None, help='Show a warning when tokens exceed this threshold.')
-@click.option('--model', default='gemini-1.5-pro', help='Reference model for token estimation.')
 @click.option('--tree-only', is_flag=True, help='Only show the tree structure of included files and exit.')
 @click.option('--prompt-no-header', is_flag=True, help='Not prepend a meta-prompt header to the context for the AI.')
-def cli(root_dir: Path, output: str, exclude: tuple, ext: tuple, copy: bool, count_tokens: bool, max_tokens: int, warn_tokens: int, model: str, tree_only: bool, prompt_no_header: bool):
+def cli(root_dir: Path, output: str, exclude: tuple, ext: tuple, copy: bool, count_tokens: bool, max_tokens: int, warn_tokens: int, tree_only: bool, prompt_no_header: bool):
     """
     A tool to generate a context file from a project, with support for token counting.
     """
@@ -194,7 +191,7 @@ def cli(root_dir: Path, output: str, exclude: tuple, ext: tuple, copy: bool, cou
         return
 
     context_parts, token_counts = generate_context(
-        root_dir, filtered_files, count_tokens, max_tokens, warn_tokens, model, prompt_no_header
+        root_dir, filtered_files, count_tokens, max_tokens, warn_tokens, prompt_no_header
     )
     
     total_tokens = sum(token_counts)
