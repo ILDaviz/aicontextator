@@ -10,7 +10,7 @@ Setup & Execution Instructions:
    uv run pytest
 
 """
-# tests/test_context_builder.py
+# tests/test_aicontextator.py
 
 import pytest
 from pathlib import Path
@@ -18,7 +18,7 @@ from click.testing import CliRunner
 import tiktoken
 
 # Import functions and the CLI command from your main script
-import context_builder
+import aicontextator
 
 # Fixture to create a temporary file structure for tests
 @pytest.fixture
@@ -47,7 +47,7 @@ def project_structure(tmp_path: Path) -> Path:
 def test_filter_project_files(project_structure: Path):
     """Tests the file filtering logic."""
     
-    filtered = context_builder.filter_project_files(
+    filtered = aicontextator.filter_project_files(
         root_dir=project_structure,
         exclude_cli_patterns=["src/utils.js"],
         include_extensions=[]
@@ -70,7 +70,7 @@ def test_generate_tree_view(project_structure: Path):
         project_structure / "config.json"
     ]
     
-    tree = context_builder.generate_tree_view(project_structure, files)
+    tree = aicontextator.generate_tree_view(project_structure, files)
     
     expected_tree = (
         f"{project_structure.name}/\n"
@@ -84,7 +84,7 @@ def test_generate_context_concatenation(project_structure: Path):
     """Tests the correct formatting and concatenation of the context."""
     files = [project_structure / "src" / "main.py"]
     
-    parts, _ = context_builder.generate_context(
+    parts, _ = aicontextator.generate_context(
         root_dir=project_structure,
         filtered_files=files,
         count_tokens=False, max_tokens=None, warn_tokens=None, model=""
@@ -112,7 +112,7 @@ def test_generate_context_token_splitting(project_structure: Path, mocker):
         project_structure / "src" / "utils.js"
     ]
     
-    parts, counts = context_builder.generate_context(
+    parts, counts = aicontextator.generate_context(
         root_dir=project_structure,
         filtered_files=files,
         count_tokens=True, max_tokens=20, warn_tokens=None, model="gpt-4"
@@ -129,7 +129,7 @@ def test_cli_tree_only(project_structure: Path):
     """Tests the --tree-only flag. (FIXED)"""
     runner = CliRunner()
     result = runner.invoke(
-        context_builder.cli,
+        aicontextator.cli,
         [str(project_structure), "--tree-only"]
     )
     
@@ -146,7 +146,7 @@ def test_cli_file_output(project_structure: Path):
     with runner.isolated_filesystem() as td:
         # We pass the path of our structure as an argument
         result = runner.invoke(
-            context_builder.cli,
+            aicontextator.cli,
             [str(project_structure), "-o", output_filename]
         )
         
@@ -163,7 +163,7 @@ def test_cli_copy_to_clipboard(project_structure: Path, mocker):
     
     runner = CliRunner()
     result = runner.invoke(
-        context_builder.cli,
+        aicontextator.cli,
         [str(project_structure), "--copy"]
     )
     

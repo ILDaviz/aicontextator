@@ -1,10 +1,11 @@
 [project]
-name = "context-builder"
+name = "aicontextator"
 version = "0.1.0"
-description = "Un tool CLI per generare un file di contesto da un progetto."
+description = "A smart CLI tool that bundles project files into a single, LLM-ready context string. It respects .gitignore, counts tokens, and handles large projects by splitting the output."
 authors = [
-    {name = "David Galet"},
+    { name = "David Galet", email = "davidgalet@gmail.com" },
 ]
+license = "MIT"
 requires-python = ">=3.9"
 dependencies = [
     "click>=8.0",
@@ -14,12 +15,11 @@ dependencies = [
     "tqdm>=4.67.1",
 ]
 
+[project.scripts]
+aicontextator = "aicontextator:cli"
+
 [project.optional-dependencies]
 test = [
     "pytest",
     "pytest-mock"
 ]
-
-[project.scripts]
-context-builder = "context_builder:cli"
-test = "pytest"
