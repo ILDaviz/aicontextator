@@ -1,10 +1,10 @@
 # Aicontextator
 A smart CLI tool that bundles project files into a single, LLM-ready context string. It respects .gitignore, counts tokens, and handles large projects by splitting the output.
 
-## Say Goodbye to Manual Copy-Pasting
+## Say goodbye to manual copy-pasting
 Stop manually finding, copying, and pasting code into your AI prompts. aicontextator automates the entire process, letting you build a comprehensive context from your project files with a single command, right from your terminal.
 
-### Key Features
+### Key features
 - 🧠 Smart File Filtering: Automatically respects rules from your .gitignore file, so you only include the code that matters.
 - ✂️ Custom Ignore Rules: Use a .contextignore file to add specific exclusions without modifying your main .gitignore.
 - 🤖 Token-Aware: Counts tokens using tiktoken to give you an accurate estimate of your context size before sending it to an LLM.
