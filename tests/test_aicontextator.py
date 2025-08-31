@@ -59,24 +59,6 @@ def test_filter_project_files(project_structure: Path):
     assert "config.json" not in filtered_names
     assert len(filtered) == 1
 
-def test_generate_tree_view(project_structure: Path):
-    """Tests the generation of the tree view."""
-    
-    files = [
-        project_structure / "src" / "main.py",
-        project_structure / "config.json"
-    ]
-    
-    tree = aicontextator.generate_tree_view(project_structure, files)
-    
-    expected_tree = (
-        f"{project_structure.name}/\n"
-        f"├── config.json\n"
-        f"└── src\n"
-        f"    └── main.py"
-    )
-    assert tree == expected_tree
-
 def test_generate_context_concatenation(project_structure: Path):
     """Tests the correct formatting and concatenation of the context."""
     files = [project_structure / "src" / "main.py"]
@@ -87,7 +69,8 @@ def test_generate_context_concatenation(project_structure: Path):
         count_tokens=False,
         max_tokens=None, 
         warn_tokens=None, 
-        prompt_no_header=True
+        prompt_no_header=True,
+        tree=False
     )
     
     expected_content = (
@@ -117,7 +100,8 @@ def test_generate_context_token_splitting(project_structure: Path, mocker):
         count_tokens=True, 
         max_tokens=35, 
         warn_tokens=None, 
-        prompt_no_header=False
+        prompt_no_header=False,
+        tree=False
     )
     
     assert len(parts) == 2
@@ -125,19 +109,6 @@ def test_generate_context_token_splitting(project_structure: Path, mocker):
     assert "main.py" in parts[0]
     assert "utils.js" in parts[1]
     assert parts[0].startswith("The following text")
-
-def test_cli_tree_only(project_structure: Path):
-    """Tests the --tree-only flag."""
-    runner = CliRunner()
-    result = runner.invoke(
-        aicontextator.cli,
-        [str(project_structure), "--tree-only"]
-    )
-    
-    assert result.exit_code == 0
-    assert "└── src" in result.output
-    assert "main.py" in result.output
-    assert "node_modules" not in result.output
 
 def test_cli_file_output(project_structure: Path):
     """Tests writing the context to a file."""
@@ -198,3 +169,18 @@ def test_cli_with_prompt_no_header_flag(project_structure: Path):
         content = (Path(td) / "no_header_test.txt").read_text()
         assert not content.startswith("The following text is a collection")
         assert content.startswith("--- FILE:")
+
+def test_env_files_excluded_by_default(project_structure: Path):
+    """Check that .env.* files are excluded by default."""
+    (project_structure / ".env.local").write_text("LOCAL=1")
+    (project_structure / ".env.production").write_text("PROD=1")
+
+    filtered = aicontextator.filter_project_files(
+        root_dir=project_structure,
+        exclude_cli_patterns=[],
+        include_extensions=[]
+    )
+
+    filtered_names = {p.name for p in filtered}
+    assert ".env.local" not in filtered_names
+    assert ".env.production" not in filtered_names

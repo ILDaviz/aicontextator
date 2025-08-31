@@ -13,22 +13,20 @@ CONTEXT_IGNORE_FILE = '.contextignore'
 GIT_IGNORE_FILE = '.gitignore'
 DEFAULT_EXCLUDE_PATTERNS = [
     '.git/', 'node_modules/', 'vendor/', '__pycache__/', '.venv/',
-    'storage/', 'public/build/', '.idea/', '.vscode/'
+    'storage/', 'public/build/', '.idea/', '.vscode/', '.env', '.env.*'
 ]
 
 def load_ignore_patterns(root_dir: Path) -> list[str]:
     """Loads exclusion patterns from .gitignore, .contextignore, and defaults."""
     patterns = list(DEFAULT_EXCLUDE_PATTERNS)
-    gitignore_path = root_dir / GIT_IGNORE_FILE
-    if gitignore_path.is_file():
-        with open(gitignore_path, 'r', encoding='utf-8') as f:
-            patterns.extend(f.readlines())
-            click.echo(f"Found and loaded '{GIT_IGNORE_FILE}'.")
-    contextignore_path = root_dir / CONTEXT_IGNORE_FILE
-    if contextignore_path.is_file():
-        with open(contextignore_path, 'r', encoding='utf-8') as f:
-            patterns.extend(f.readlines())
-            click.echo(f"Found and loaded '{CONTEXT_IGNORE_FILE}'.")
+    for fname in (GIT_IGNORE_FILE, CONTEXT_IGNORE_FILE):
+        p = root_dir / fname
+        if p.is_file():
+            with open(p, 'r', encoding='utf-8') as f:
+                lines = [line.strip() for line in f.readlines()]
+                cleaned = [line for line in lines if line and not line.startswith('#')]
+                patterns.extend(cleaned)
+                click.echo(f"Found and loaded '{fname}'.")
     return patterns
 
 def filter_project_files(
@@ -97,7 +95,8 @@ def generate_context(
     count_tokens: bool,
     max_tokens: int,
     warn_tokens: int,
-    prompt_no_header: bool
+    prompt_no_header: bool,
+    tree: bool
 ) -> tuple[list[str], list[int]]:
     """Generates the context string, handling token counting and splitting if needed."""
     if count_tokens:
@@ -124,6 +123,12 @@ def generate_context(
         )
         current_part_builder.write(header_text)
         current_token_count += _count(header_text)
+
+        if tree:
+            tree_view = generate_tree_view(root_dir, filtered_files)
+            tree_header = f"The project structure is as follows:\n{tree_view}\n\n"
+            current_part_builder.write(tree_header)
+            current_token_count += _count(tree_header)
 
     click.echo(f"Found {len(filtered_files)} files to include. Building context...")
 
@@ -168,11 +173,12 @@ def generate_context(
 @click.option('--ext', multiple=True, help='Extensions to include.')
 @click.option('--copy', '-c', is_flag=True, help='Copy the context to the clipboard (only the first part if split).')
 @click.option('--count-tokens', is_flag=True, help='Enable token counting.')
-@click.option('--max-tokens', type=int, default=None, help='Maximum number of tokens per file. Splits the output if exceeded.')
+@click.option('--max-tokens', type=int, default=None, help='Maximum number of tokens per output part (split if exceeded).')
 @click.option('--warn-tokens', type=int, default=None, help='Show a warning when tokens exceed this threshold.')
 @click.option('--tree-only', is_flag=True, help='Only show the tree structure of included files and exit.')
+@click.option('--tree', is_flag=True, help='Add tree view of the project structure to the context.')
 @click.option('--prompt-no-header', is_flag=True, help='Not prepend a meta-prompt header to the context for the AI.')
-def cli(root_dir: Path, output: str, exclude: tuple, ext: tuple, copy: bool, count_tokens: bool, max_tokens: int, warn_tokens: int, tree_only: bool, prompt_no_header: bool):
+def cli(root_dir: Path, output: str, exclude: tuple, ext: tuple, copy: bool, count_tokens: bool, max_tokens: int, warn_tokens: int, tree_only: bool, tree: bool, prompt_no_header: bool):
     """
     A tool to generate a context file from a project, with support for token counting.
     """
@@ -191,7 +197,7 @@ def cli(root_dir: Path, output: str, exclude: tuple, ext: tuple, copy: bool, cou
         return
 
     context_parts, token_counts = generate_context(
-        root_dir, filtered_files, count_tokens, max_tokens, warn_tokens, prompt_no_header
+        root_dir, filtered_files, count_tokens, max_tokens, warn_tokens, prompt_no_header, tree
     )
     
     total_tokens = sum(token_counts)

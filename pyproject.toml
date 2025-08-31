@@ -1,6 +1,6 @@
 [project]
 name = "aicontextator"
-version = "0.1.4"
+version = "0.1.5"
 description = "A smart CLI tool that bundles project files into a single, LLM-ready context string. It respects .gitignore, counts tokens, and handles large projects by splitting the output."
 authors = [
     { name = "David Galet", email = "davidgalet@gmail.com" },
