@@ -84,7 +84,7 @@ def generate_tree_view(root_dir: Path, filtered_files: list[Path]) -> str:
                 extension = "    " if i == len(items) - 1 else "│   "
                 build_tree_lines(structure[name], prefix + extension)
 
-    tree_lines.append(f"{root_dir.name}/")
+    tree_lines.append(f"{root_dir.name}.")
     build_tree_lines(tree)
     return "\n".join(tree_lines)
 
