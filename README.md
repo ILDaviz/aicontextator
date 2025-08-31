@@ -1,4 +1,4 @@
-# aicontextator
+# Aicontextator
 A smart CLI tool that bundles project files into a single, LLM-ready context string. It respects .gitignore, counts tokens, and handles large projects by splitting the output.
 
 ## Say Goodbye to Manual Copy-Pasting
