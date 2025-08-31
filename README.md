@@ -67,7 +67,7 @@ aicontextator --prompt-no-header
 ```
 
 ### Advanced Usage with Token Management
-1. Generate the context and get a token count report:
+1. Generate the context and get a token count report [Tiktoken](https://github.com/openai/tiktoken):
 
 ```bash
 aicontextator --count-tokens --copy
