@@ -107,7 +107,7 @@ Interested in contributing? Setting up a development environment is straightforw
 1. Clone the repository:
 
 ```bash
-git clone [https://github.com/ILDaviz/aicontextator](https://github.com/ILDaviz/aicontextator)
+git clone https://github.com/ILDaviz/aicontextator
 cd aicontextator
 ```
 
