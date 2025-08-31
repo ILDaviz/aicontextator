@@ -77,7 +77,7 @@ CLI options (high level)
 *   `--output, -o` : output filename (if split, parts are numbered).
 *   `--exclude, -e` : extra exclusion patterns (gitignore-style). Can be repeated.
 *   `--ext` : include only specific extensions (repeatable).
-*   `--copy, -c` : copy the first part to clipboard.
+*   `--copy, -c` : copy to clipboard.
 *   `--count-tokens` : enable token counting (uses `tiktoken`).
 *   `--max-tokens` : maximum tokens _per output part_ (if exceeded, the output is split into parts).
     *   Note: this does not perform hard splitting inside single files. If a single file exceeds `--max-tokens` by itself, it will still be placed whole into a part (and that part may exceed the limit).
