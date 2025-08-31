@@ -41,8 +41,6 @@ def project_structure(tmp_path: Path) -> Path:
     
     return tmp_path
 
-# --- Tests for individual functions ---
-
 def test_filter_project_files(project_structure: Path):
     """Tests the file filtering logic."""
     
@@ -90,7 +88,7 @@ def test_generate_context_concatenation(project_structure: Path):
         max_tokens=None, 
         warn_tokens=None, 
         model="",
-        prompt_header=False
+        prompt_no_header=True
     )
     
     expected_content = (
@@ -118,18 +116,17 @@ def test_generate_context_token_splitting(project_structure: Path, mocker):
         root_dir=project_structure,
         filtered_files=files,
         count_tokens=True, 
-        max_tokens=20, 
+        max_tokens=35, 
         warn_tokens=None, 
         model="gpt-4o",
-        prompt_header=False 
+        prompt_no_header=False
     )
     
     assert len(parts) == 2
     assert len(counts) == 2
     assert "main.py" in parts[0]
     assert "utils.js" in parts[1]
-
-# --- Tests for the Command Line Interface (CLI) ---
+    assert parts[0].startswith("The following text")
 
 def test_cli_tree_only(project_structure: Path):
     """Tests the --tree-only flag."""
@@ -177,15 +174,29 @@ def test_cli_copy_to_clipboard(project_structure: Path, mocker):
     copied_content = mock_copy.call_args[0][0]
     assert "--- FILE: src/main.py ---" in copied_content
 
-def test_cli_prompt_header(project_structure: Path):
-    """Tests that the --prompt-header flag prepends the correct text."""
+def test_cli_default_has_header(project_structure: Path):
+    """Tests that the default behavior includes the prompt header."""
     runner = CliRunner()
     
     with runner.isolated_filesystem() as td:
         result = runner.invoke(
             aicontextator.cli,
-            [str(project_structure), "--prompt-header", "-o", "header_test.txt"]
+            [str(project_structure), "-o", "header_test.txt"]
         )
         assert result.exit_code == 0
         content = (Path(td) / "header_test.txt").read_text()
-        assert content.startswith("The following text is a collection of source code files")
+        assert content.startswith("The following text is a collection")
+
+def test_cli_with_prompt_no_header_flag(project_structure: Path):
+    """Tests that the --prompt-no-header flag correctly REMOVES the header."""
+    runner = CliRunner()
+    
+    with runner.isolated_filesystem() as td:
+        result = runner.invoke(
+            aicontextator.cli,
+            [str(project_structure), "--prompt-no-header", "-o", "no_header_test.txt"]
+        )
+        assert result.exit_code == 0
+        content = (Path(td) / "no_header_test.txt").read_text()
+        assert not content.startswith("The following text is a collection")
+        assert content.startswith("--- FILE:")

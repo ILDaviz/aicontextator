@@ -54,9 +54,9 @@ aicontextator -o context.txt
 aicontextator --tree-only
 ```
 
-4. Add an instructional header to guide the AI:
+4. Generate the context **WITHOUT** the instructional header:
 
-To improve the relevance of the responses, you can add a standard header that explains the nature of the context to the AI.
+Use this flag if you want to generate only the raw file content.
 
 ```bash
 aicontextator --prompt-header

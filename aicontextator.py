@@ -98,7 +98,7 @@ def generate_context(
     max_tokens: int,
     warn_tokens: int,
     model: str,
-    prompt_header: bool
+    prompt_no_header: bool
 ) -> tuple[list[str], list[int]]:
     """Generates the context string, handling token counting and splitting if needed."""
     if count_tokens:
@@ -118,7 +118,7 @@ def generate_context(
     current_token_count = 0
     warn_triggered = False
 
-    if prompt_header:
+    if not prompt_no_header:
         header_text = (
             "The following text is a collection of source code files from a software project. "
             "Each file is delimited by a '--- FILE: [filepath] ---' header.\n"
@@ -174,8 +174,8 @@ def generate_context(
 @click.option('--warn-tokens', type=int, default=None, help='Show a warning when tokens exceed this threshold.')
 @click.option('--model', default='gemini-1.5-pro', help='Reference model for token estimation.')
 @click.option('--tree-only', is_flag=True, help='Only show the tree structure of included files and exit.')
-@click.option('--prompt-header', is_flag=True, help='Prepend a meta-prompt header to the context for the AI.')
-def cli(root_dir: Path, output: str, exclude: tuple, ext: tuple, copy: bool, count_tokens: bool, max_tokens: int, warn_tokens: int, model: str, tree_only: bool, prompt_header: bool):
+@click.option('--prompt-no-header', is_flag=True, help='Not prepend a meta-prompt header to the context for the AI.')
+def cli(root_dir: Path, output: str, exclude: tuple, ext: tuple, copy: bool, count_tokens: bool, max_tokens: int, warn_tokens: int, model: str, tree_only: bool, prompt_no_header: bool):
     """
     A tool to generate a context file from a project, with support for token counting.
     """
@@ -194,7 +194,7 @@ def cli(root_dir: Path, output: str, exclude: tuple, ext: tuple, copy: bool, cou
         return
 
     context_parts, token_counts = generate_context(
-        root_dir, filtered_files, count_tokens, max_tokens, warn_tokens, model, prompt_header
+        root_dir, filtered_files, count_tokens, max_tokens, warn_tokens, model, prompt_no_header
     )
     
     total_tokens = sum(token_counts)
