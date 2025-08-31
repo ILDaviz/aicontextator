@@ -98,5 +98,3 @@ This project is licensed under the 0BSD License. See the LICENSE file for detail
 
 ### Contributing
 Contributions, issues, and feature requests are welcome! Feel free to check the issues page.
-
-Built by David Galet.
