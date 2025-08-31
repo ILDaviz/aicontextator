@@ -2,6 +2,8 @@
 
 import io
 import os
+import shutil
+import subprocess
 from pathlib import Path
 import click
 import pyperclip
@@ -90,6 +92,44 @@ def generate_tree_view(root_dir: Path, filtered_files: list[Path]) -> str:
     build_tree_lines(tree)
     return "\n".join(tree_lines)
 
+def minify_content(content: str, language: str, shown_warnings: set) -> str:
+    """
+    ALPHA
+    Minifies content using external tools, if available.
+    Returns original content if the tool is not found or fails.
+    """
+    tool, args = None, None
+    if language == 'php':
+        tool = 'php'
+        # php -w strips comments and whitespace from a file
+        args = [tool, "-w"]
+    elif language in ['js', 'ts', 'vue', 'jsx', 'tsx', 'svelte']:
+        tool = 'terser'
+        # terser is a widely used JS minifier
+        args = [tool, "--compress", "--mangle"]
+    else:
+        # Language not supported for minification
+        return content
+
+    if not shutil.which(tool):
+        if tool not in shown_warnings:
+            if language == 'js':
+                click.secho("Hint: You can install terser using 'npm install -g terser'", fg='yellow')
+
+            click.secho(f"Warning: Minify for '{language}' skipped. Command '{tool}' not found in PATH.", fg='yellow')
+            shown_warnings.add(tool)
+        return content
+
+    try:
+        result = subprocess.run(
+            args, input=content, capture_output=True, text=True, check=True
+        )
+        return result.stdout
+    except (subprocess.CalledProcessError, FileNotFoundError) as e:
+        if tool not in shown_warnings:
+            click.secho(f"Warning: Minify for '{language}' failed: {e}. Using original content.", fg='yellow')
+            shown_warnings.add(tool)
+        return content
 
 def generate_context(
     root_dir: Path,
@@ -97,7 +137,8 @@ def generate_context(
     count_tokens: bool,
     max_tokens: int,
     warn_tokens: int,
-    prompt_no_header: bool
+    prompt_no_header: bool,
+    minify_tool: tuple[str]
 ) -> tuple[list[str], list[int]]:
     """Generates the context string, handling token counting and splitting if needed."""
     if count_tokens:
@@ -115,6 +156,7 @@ def generate_context(
     current_part_builder = io.StringIO()
     current_token_count = 0
     warn_triggered = False
+    shown_minify_warnings = set()
 
     if not prompt_no_header:
         header_text = (
@@ -133,6 +175,11 @@ def generate_context(
             header = f"--- FILE: {relative_path.as_posix()} ---\n\n"
             with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
                 content = f.read()
+
+            # Apply minification if requested and possible
+            file_lang = file_path.suffix.lstrip('.')
+            if file_lang in minify_tool:
+                content = minify_content(content, file_lang, shown_minify_warnings)
             
             file_block = header + content + "\n\n"
             block_tokens = _count(file_block)
@@ -172,11 +219,12 @@ def generate_context(
 @click.option('--warn-tokens', type=int, default=None, help='Show a warning when tokens exceed this threshold.')
 @click.option('--tree-only', is_flag=True, help='Only show the tree structure of included files and exit.')
 @click.option('--prompt-no-header', is_flag=True, help='Not prepend a meta-prompt header to the context for the AI.')
-def cli(root_dir: Path, output: str, exclude: tuple, ext: tuple, copy: bool, count_tokens: bool, max_tokens: int, warn_tokens: int, tree_only: bool, prompt_no_header: bool):
+@click.option('--minify-tool', multiple=True, default=[], type=click.Choice(['php', 'js'], case_sensitive=False), help='(ALPHA) Minify files for a language (requires external tools like php or terser).')
+def cli(root_dir: Path, output: str, exclude: tuple, ext: tuple, copy: bool, count_tokens: bool, max_tokens: int, warn_tokens: int, tree_only: bool, prompt_no_header: bool, minify_tool: tuple):
     """
     A tool to generate a context file from a project, with support for token counting.
     """
-    click.secho(f"Starting context-builder in directory: {root_dir.resolve()}", fg='green', bold=True)
+    click.secho(f"Starting aicontextator in directory: {root_dir.resolve()}", fg='green', bold=True)
     
     filtered_files = filter_project_files(root_dir, list(exclude), list(ext))
 
@@ -191,7 +239,7 @@ def cli(root_dir: Path, output: str, exclude: tuple, ext: tuple, copy: bool, cou
         return
 
     context_parts, token_counts = generate_context(
-        root_dir, filtered_files, count_tokens, max_tokens, warn_tokens, prompt_no_header
+        root_dir, filtered_files, count_tokens, max_tokens, warn_tokens, prompt_no_header, minify_tool
     )
     
     total_tokens = sum(token_counts)
