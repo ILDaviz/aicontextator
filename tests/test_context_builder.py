@@ -17,19 +17,19 @@ from pathlib import Path
 from click.testing import CliRunner
 import tiktoken
 
-# Importa le funzioni e il comando CLI dal tuo script principale
+# Import functions and the CLI command from your main script
 import context_builder
 
-# Fixture per creare una struttura di file temporanea per i test
+# Fixture to create a temporary file structure for tests
 @pytest.fixture
 def project_structure(tmp_path: Path) -> Path:
-    """Crea una struttura di progetto fittizia per i test."""
+    """Creates a mock project structure for testing."""
     (tmp_path / "src").mkdir()
     (tmp_path / "src" / "main.py").write_text("print('hello')")
     (tmp_path / "src" / "utils.js").write_text("console.log('hello');")
     
     (tmp_path / "docs").mkdir()
-    (tmp_path / "docs" / "guide.md").write_text("# Guida")
+    (tmp_path / "docs" / "guide.md").write_text("# Guide")
     
     (tmp_path / "node_modules").mkdir()
     (tmp_path / "node_modules" / "lib.js").write_text("// lib")
@@ -42,10 +42,10 @@ def project_structure(tmp_path: Path) -> Path:
     
     return tmp_path
 
-# --- Test per le funzioni individuali ---
+# --- Tests for individual functions ---
 
 def test_filter_project_files(project_structure: Path):
-    """Testa la logica di filtraggio dei file."""
+    """Tests the file filtering logic."""
     
     filtered = context_builder.filter_project_files(
         root_dir=project_structure,
@@ -63,7 +63,7 @@ def test_filter_project_files(project_structure: Path):
     assert len(filtered) == 1
 
 def test_generate_tree_view(project_structure: Path):
-    """Testa la generazione della vista ad albero. (CORRETTO)"""
+    """Tests the tree view generation. (FIXED)"""
     
     files = [
         project_structure / "src" / "main.py",
@@ -75,13 +75,13 @@ def test_generate_tree_view(project_structure: Path):
     expected_tree = (
         f"{project_structure.name}/\n"
         f"├── config.json\n"
-        f"└── src\n"  # Corretto: rimosso lo slash
+        f"└── src\n"
         f"    └── main.py"
     )
     assert tree == expected_tree
 
 def test_generate_context_concatenation(project_structure: Path):
-    """Testa la corretta formattazione e concatenazione del contesto."""
+    """Tests the correct formatting and concatenation of the context."""
     files = [project_structure / "src" / "main.py"]
     
     parts, _ = context_builder.generate_context(
@@ -99,11 +99,11 @@ def test_generate_context_concatenation(project_structure: Path):
     assert parts[0] == expected_content
 
 def test_generate_context_token_splitting(project_structure: Path, mocker):
-    """Testa la suddivisione del contesto quando max_tokens è superato. (CORRETTO)"""
+    """Tests context splitting when max_tokens is exceeded. (FIXED)"""
     
-    # Mock di tiktoken per rendere il test affidabile
+    # Mock tiktoken to make the test reliable
     mock_encoding = mocker.Mock()
-    # Simula che ogni testo abbia 15 token
+    # Simulate that each text has 15 tokens
     mock_encoding.encode.return_value = [0] * 15
     mocker.patch('tiktoken.get_encoding', return_value=mock_encoding)
     
@@ -123,10 +123,10 @@ def test_generate_context_token_splitting(project_structure: Path, mocker):
     assert "main.py" in parts[0]
     assert "utils.js" in parts[1]
 
-# --- Test per l'interfaccia a riga di comando (CLI) ---
+# --- Tests for the command-line interface (CLI) ---
 
 def test_cli_tree_only(project_structure: Path):
-    """Testa il flag --tree-only. (CORRETTO)"""
+    """Tests the --tree-only flag. (FIXED)"""
     runner = CliRunner()
     result = runner.invoke(
         context_builder.cli,
@@ -134,18 +134,17 @@ def test_cli_tree_only(project_structure: Path):
     )
     
     assert result.exit_code == 0
-    # Corretto: verifica la formattazione esatta
     assert "└── src" in result.output
     assert "main.py" in result.output
     assert "node_modules" not in result.output
 
 def test_cli_file_output(project_structure: Path):
-    """Testa la scrittura del contesto su un file. (CORRETTO)"""
+    """Tests writing the context to a file. (FIXED)"""
     runner = CliRunner()
     output_filename = "output.txt"
     
     with runner.isolated_filesystem() as td:
-        # Passiamo il path della nostra struttura come argomento
+        # We pass the path of our structure as an argument
         result = runner.invoke(
             context_builder.cli,
             [str(project_structure), "-o", output_filename]
@@ -158,7 +157,7 @@ def test_cli_file_output(project_structure: Path):
         assert "--- FILE: src/main.py ---" in content
 
 def test_cli_copy_to_clipboard(project_structure: Path, mocker):
-    """Testa il flag --copy, usando un mock per pyperclip."""
+    """Tests the --copy flag, using a mock for pyperclip."""
     
     mock_copy = mocker.patch("context_builder.pyperclip.copy")
     
