@@ -13,7 +13,7 @@ Stop manually finding, copying, and pasting code into your AI prompts. aicontext
 - 🌲 Tree View: Preview which files will be included with the --tree-only flag before generating the full context.
 - ⚙️ Highly Configurable: Fine-tune the output with options to exclude specific files, include certain extensions, and more.
 
-## Basic usage
+### Basic usage
 
 Install and use easily with [uv](https://docs.astral.sh/uv/):
 
@@ -54,6 +54,14 @@ aicontextator -o context.txt
 aicontextator --tree-only
 ```
 
+4. Add an instructional header to guide the AI:
+
+To improve the relevance of the responses, you can add a standard header that explains the nature of the context to the AI.
+
+```bash
+aicontextator --prompt-header
+```
+
 ### Advanced Usage with Token Management
 1. Generate the context and get a token count report:
 
@@ -91,6 +99,32 @@ For a full list of commands and options, run:
 
 ```bash
 aicontextator --help
+```
+
+### Development & Testing
+Interested in contributing? Setting up a development environment is straightforward.
+
+1. Clone the repository:
+
+```bash
+git clone [https://github.com/ILDaviz/aicontextator](https://github.com/ILDaviz/aicontextator)
+cd aicontextator
+```
+
+2. Create a virtual environment and install dependencies:
+It's recommended to create a virtual environment. Then, install the project in "editable" mode along with the testing dependencies.
+
+```bash
+uv venv
+source .venv/bin/activate
+uv pip install -e '.[test]'
+```
+
+3. Run the tests:
+To ensure everything is working correctly, run the test suite using pytest.
+
+```bash
+uv run pytest
 ```
 
 ### License

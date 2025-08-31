@@ -1,12 +1,12 @@
 """
-Test suite for the context_builder script.
+Test suite for the aicontextator script.
 
 Setup & Execution Instructions:
 
 1. Install dependencies (including test dependencies):
    uv pip install -e '.[test]'
 
-2. Run the tests with the command defined in pyproject.toml:
+2. Run the tests:
    uv run pytest
 
 """
@@ -15,7 +15,6 @@ Setup & Execution Instructions:
 import pytest
 from pathlib import Path
 from click.testing import CliRunner
-import tiktoken
 
 # Import functions and the CLI command from your main script
 import aicontextator
@@ -63,7 +62,7 @@ def test_filter_project_files(project_structure: Path):
     assert len(filtered) == 1
 
 def test_generate_tree_view(project_structure: Path):
-    """Tests the tree view generation. (FIXED)"""
+    """Tests the generation of the tree view."""
     
     files = [
         project_structure / "src" / "main.py",
@@ -87,7 +86,11 @@ def test_generate_context_concatenation(project_structure: Path):
     parts, _ = aicontextator.generate_context(
         root_dir=project_structure,
         filtered_files=files,
-        count_tokens=False, max_tokens=None, warn_tokens=None, model=""
+        count_tokens=False,
+        max_tokens=None, 
+        warn_tokens=None, 
+        model="",
+        prompt_header=False
     )
     
     expected_content = (
@@ -99,11 +102,10 @@ def test_generate_context_concatenation(project_structure: Path):
     assert parts[0] == expected_content
 
 def test_generate_context_token_splitting(project_structure: Path, mocker):
-    """Tests context splitting when max_tokens is exceeded. (FIXED)"""
+    """Tests context splitting when max_tokens is exceeded."""
     
-    # Mock tiktoken to make the test reliable
     mock_encoding = mocker.Mock()
-    # Simulate that each text has 15 tokens
+    # Simulate each text has 15 tokens
     mock_encoding.encode.return_value = [0] * 15
     mocker.patch('tiktoken.get_encoding', return_value=mock_encoding)
     
@@ -115,7 +117,11 @@ def test_generate_context_token_splitting(project_structure: Path, mocker):
     parts, counts = aicontextator.generate_context(
         root_dir=project_structure,
         filtered_files=files,
-        count_tokens=True, max_tokens=20, warn_tokens=None, model="gpt-4"
+        count_tokens=True, 
+        max_tokens=20, 
+        warn_tokens=None, 
+        model="gpt-4o",
+        prompt_header=False 
     )
     
     assert len(parts) == 2
@@ -123,10 +129,10 @@ def test_generate_context_token_splitting(project_structure: Path, mocker):
     assert "main.py" in parts[0]
     assert "utils.js" in parts[1]
 
-# --- Tests for the command-line interface (CLI) ---
+# --- Tests for the Command Line Interface (CLI) ---
 
 def test_cli_tree_only(project_structure: Path):
-    """Tests the --tree-only flag. (FIXED)"""
+    """Tests the --tree-only flag."""
     runner = CliRunner()
     result = runner.invoke(
         aicontextator.cli,
@@ -139,12 +145,11 @@ def test_cli_tree_only(project_structure: Path):
     assert "node_modules" not in result.output
 
 def test_cli_file_output(project_structure: Path):
-    """Tests writing the context to a file. (FIXED)"""
+    """Tests writing the context to a file."""
     runner = CliRunner()
     output_filename = "output.txt"
     
     with runner.isolated_filesystem() as td:
-        # We pass the path of our structure as an argument
         result = runner.invoke(
             aicontextator.cli,
             [str(project_structure), "-o", output_filename]
@@ -159,7 +164,7 @@ def test_cli_file_output(project_structure: Path):
 def test_cli_copy_to_clipboard(project_structure: Path, mocker):
     """Tests the --copy flag, using a mock for pyperclip."""
     
-    mock_copy = mocker.patch("context_builder.pyperclip.copy")
+    mock_copy = mocker.patch("aicontextator.pyperclip.copy")
     
     runner = CliRunner()
     result = runner.invoke(
@@ -172,3 +177,15 @@ def test_cli_copy_to_clipboard(project_structure: Path, mocker):
     copied_content = mock_copy.call_args[0][0]
     assert "--- FILE: src/main.py ---" in copied_content
 
+def test_cli_prompt_header(project_structure: Path):
+    """Tests that the --prompt-header flag prepends the correct text."""
+    runner = CliRunner()
+    
+    with runner.isolated_filesystem() as td:
+        result = runner.invoke(
+            aicontextator.cli,
+            [str(project_structure), "--prompt-header", "-o", "header_test.txt"]
+        )
+        assert result.exit_code == 0
+        content = (Path(td) / "header_test.txt").read_text()
+        assert content.startswith("The following text is a collection of source code files")

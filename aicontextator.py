@@ -97,7 +97,8 @@ def generate_context(
     count_tokens: bool,
     max_tokens: int,
     warn_tokens: int,
-    model: str
+    model: str,
+    prompt_header: bool
 ) -> tuple[list[str], list[int]]:
     """Generates the context string, handling token counting and splitting if needed."""
     if count_tokens:
@@ -116,6 +117,15 @@ def generate_context(
     current_part_builder = io.StringIO()
     current_token_count = 0
     warn_triggered = False
+
+    if prompt_header:
+        header_text = (
+            "The following text is a collection of source code files from a software project. "
+            "Each file is delimited by a '--- FILE: [filepath] ---' header.\n"
+            "Please use this code as the primary source of truth to answer questions about the project.\n\n"
+        )
+        current_part_builder.write(header_text)
+        current_token_count += _count(header_text)
 
     click.echo(f"Found {len(filtered_files)} files to include. Building context...")
 
@@ -164,7 +174,8 @@ def generate_context(
 @click.option('--warn-tokens', type=int, default=None, help='Show a warning when tokens exceed this threshold.')
 @click.option('--model', default='gemini-1.5-pro', help='Reference model for token estimation.')
 @click.option('--tree-only', is_flag=True, help='Only show the tree structure of included files and exit.')
-def cli(root_dir: Path, output: str, exclude: tuple, ext: tuple, copy: bool, count_tokens: bool, max_tokens: int, warn_tokens: int, model: str, tree_only: bool):
+@click.option('--prompt-header', is_flag=True, help='Prepend a meta-prompt header to the context for the AI.')
+def cli(root_dir: Path, output: str, exclude: tuple, ext: tuple, copy: bool, count_tokens: bool, max_tokens: int, warn_tokens: int, model: str, tree_only: bool, prompt_header: bool):
     """
     A tool to generate a context file from a project, with support for token counting.
     """
@@ -183,7 +194,7 @@ def cli(root_dir: Path, output: str, exclude: tuple, ext: tuple, copy: bool, cou
         return
 
     context_parts, token_counts = generate_context(
-        root_dir, filtered_files, count_tokens, max_tokens, warn_tokens, model
+        root_dir, filtered_files, count_tokens, max_tokens, warn_tokens, model, prompt_header
     )
     
     total_tokens = sum(token_counts)
