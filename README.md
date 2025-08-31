@@ -56,10 +56,8 @@ aicontextator --tree-only
 
 4. Generate the context **WITHOUT** the instructional header:
 
-Use this flag if you want to generate only the raw file content.
-
 ```bash
-aicontextator --prompt-header
+aicontextator --prompt-no-header
 ```
 
 ### Advanced Usage with Token Management
