@@ -46,7 +46,7 @@ aicontextator
 ```
 
 ```
-# Copy the context to the clipboard:
+# Copy to the clipboard:
 aicontextator --copy
 ```
 
