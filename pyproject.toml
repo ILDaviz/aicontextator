@@ -1,0 +1,25 @@
+[project]
+name = "context-builder"
+version = "0.1.0"
+description = "Un tool CLI per generare un file di contesto da un progetto."
+authors = [
+    {name = "David Galet"},
+]
+requires-python = ">=3.9"
+dependencies = [
+    "click>=8.0",
+    "pathspec>=0.12",
+    "pyperclip>=1.9.0",
+    "tiktoken>=0.11.0",
+    "tqdm>=4.67.1",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest",
+    "pytest-mock"
+]
+
+[project.scripts]
+context-builder = "context_builder:cli"
+test = "pytest"
