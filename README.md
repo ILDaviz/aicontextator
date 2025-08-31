@@ -99,7 +99,7 @@ aicontextator --exclude "tests/"
 aicontextator --ext .py --ext .md
 ```
 
-For a full list of commands and options, run:
+### For a full list of commands and options, run:
 
 ```bash
 aicontextator --help
