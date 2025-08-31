@@ -24,49 +24,57 @@ Install
 -------
 
 Install and use easily with [uv](https://docs.astral.sh/uv/):
-
-    uv tool install git+https://github.com/ILDaviz/aicontextator
-    aicontextator /path/to/project
-
+```
+uv tool install git+https://github.com/ILDaviz/aicontextator
+```
+```
+aicontextator /path/to/project
+```
 Manual (pip editable):
-
-    git clone https://github.com/ILDaviz/aicontextator
-    cd aicontextator
-    pip install -e .
-    aicontextator /path/to/project
-
+```
+git clone https://github.com/ILDaviz/aicontextator
+```
+```
+cd aicontextator
+```
+```
+pip install -e .
+```
+```
+aicontextator /path/to/project
+```
 * * *
 
 Basic usage
 -----------
 
+#### Generate `context.txt` in the current directory:
 ```
-# Generate `context.txt` in the current directory:
 aicontextator
 ```
 
+#### Copy to the clipboard:
 ```
-# Copy to the clipboard:
 aicontextator --copy
 ```
 
+#### Save to a custom file:
 ```
-# Save to a custom file:
 aicontextator -o custom.txt
 ```
 
+#### Include the project tree at the top of the context:
 ```
-# Include the project tree at the top of the context:
 aicontextator --tree
 ```
 
+#### Show only the tree and exit (preview):
 ```
-# Show only the tree and exit (preview):
 aicontextator --tree-only
 ```
 
+#### Omit the meta header (only file blocks will be output):
 ```
-# Omit the meta header (only file blocks will be output):
 aicontextator --prompt-no-header
 ```
 * * *
@@ -99,25 +107,25 @@ Token handling notes
 
 Examples (advanced)
 -------------------
+#### Count tokens and print a report:
 ```
-# Count tokens and print a report:
 aicontextator --count-tokens
 ```
+#### Split into parts when the context exceeds 100000 tokens:
 ```
-# Split into parts when the context exceeds 100000 tokens:
+#### Creates context-part-1.txt, context-part-2.txt, ...
 §aicontextator --count-tokens --max-tokens 100000 -o context.txt
-# Creates context-part-1.txt, context-part-2.txt, ...
 ```
+#### Warn when a part gets larger than 80k tokens:
 ```
-# Warn when a part gets larger than 80k tokens:
 aicontextator --count-tokens --warn-tokens 80000
 ```
+#### Exclude a folder:
 ```
-# Exclude a folder:
 aicontextator --exclude "tests/"
 ```
+#### Only include Python and Markdown files:
 ```
-# Only include Python and Markdown files:
 aicontextator --ext .py --ext .md
 ```
 * * *
@@ -138,6 +146,8 @@ Development & testing
 
 ```
 git clone https://github.com/ILDaviz/aicontextator
+```
+```
 cd aicontextator
 ```
 
@@ -145,7 +155,11 @@ cd aicontextator
 
 ```
 python -m venv .venv
+```
+```
 source .venv/bin/activate
+```
+```
 pip install -e '.[test]'
 ```
 
