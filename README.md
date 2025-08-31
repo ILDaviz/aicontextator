@@ -3,8 +3,6 @@ Aicontextator
 
 Aicontextator is a simple, practical CLI that bundles a project's files into a single LLM-ready context string. It respects `.gitignore` and a `.contextignore` file, estimates tokens with `tiktoken`, and can split large outputs into multiple parts.
 
-Quick summary: stop copying and pasting — generate a text bundle of your project with one command.
-
 ## Say goodbye to manual copy-pasting
 Stop manually finding, copying, and pasting code into your AI prompts. aicontextator automates the entire process, letting you build a comprehensive context from your project files with a single command, right from your terminal.
 
