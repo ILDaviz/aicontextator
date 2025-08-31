@@ -94,7 +94,7 @@ aicontextator --help
 ```
 
 ### License
-This project is licensed under the 0BSD License. See the LICENSE file for details. This means you are free to use, modify, and distribute it with almost no restrictions.
+This project is licensed under the [MIT license](https://opensource.org/licenses/MIT).
 
 ### Contributing
 Contributions, issues, and feature requests are welcome! Feel free to check the issues page.
