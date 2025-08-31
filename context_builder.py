@@ -103,7 +103,7 @@ def generate_context(
     if count_tokens:
         try:
             encoding = tiktoken.get_encoding("cl100k_base")
-            click.echo(f"Token counting enabled (estimating for '{model}' with 'cl10k_base').")
+            click.echo(f"Token counting enabled (estimating for '{model}' with 'cl100k_base').")
             _count = lambda text: len(encoding.encode(text, disallowed_special=()))
         except Exception as e:
             click.secho(f"Error initializing tiktoken: {e}. Disabling token counting.", fg='red')
