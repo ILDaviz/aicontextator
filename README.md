@@ -70,7 +70,7 @@ aicontextator --prompt-no-header
 1. Generate the context and get a token count report [Tiktoken](https://github.com/openai/tiktoken):
 
 ```bash
-aicontextator --count-tokens --copy
+aicontextator --count-tokens
 ```
 
 2. Automatically split the output if it exceeds 100,000 tokens:
@@ -90,13 +90,13 @@ aicontextator --count-tokens --warn-tokens 80000
 1. Exclude a specific folder (e.g., tests):
 
 ```bash
-aicontextator --exclude "tests/" --copy
+aicontextator --exclude "tests/"
 ```
 
 2. Only include Python and Markdown files:
 
 ```bash
-aicontextator --ext .py --ext .md --copy
+aicontextator --ext .py --ext .md
 ```
 
 For a full list of commands and options, run:
