@@ -11,6 +11,9 @@ Key features
 
 *   🧠 Smart file filtering: respects `.gitignore` automatically.
 *   ✂️ Custom ignore rules: use a `.contextignore` file for project-specific exclusions.
+*   📝 Structured JSON Output: Generate a detailed JSON file with project structure, file contents, token counts, and security warnings for programmatic use with `--format json`.
+*   🎛 Interactive Mode: Select or deselect files interactively using arrow keys.
+*   🛡️ Built-in Secret Scanning: Proactively scans the content of included files using the detect-secrets engine to identify and warn about potential secrets (like API keys) before they are added to the context
 *   🔒 Secure defaults: excludes `.env` and `.env.*` files by default to reduce secret leakage.
 *   🤖 Token-aware: estimates tokens using `tiktoken`.
 *   🧩 Automatic splitting: splits output into multiple parts when a per-part token limit is reached.
@@ -77,19 +80,32 @@ aicontextator --tree-only
 ```
 aicontextator --prompt-no-header
 ```
+
+#### Select or deselect files interactively using arrow keys:
+```
+aicontextator --interactive
+```
+
+#### Generate a structured JSON output for scripts or advanced analysis:
+```
+aicontextator --format json -o context_data.json --count-tokens
+```
+
 * * *
 
 CLI options (high level)
 ------------------------
-
-*   `--output, -o` : output filename (if split, parts are numbered).
+*   ROOT_DIR: The project directory to analyze (defaults to current directory).
+*   `--output, -o` : Output filename. If splitting, parts are numbered (e.g., context-part-1.txt). Defaults to context.txt or context.json.
+*   `--format` : The output format. Can be text (default) or json.
 *   `--exclude, -e` : extra exclusion patterns (gitignore-style). Can be repeated.
 *   `--ext` : include only specific extensions (repeatable).
 *   `--copy, -c` : copy to clipboard.
 *   `--count-tokens` : enable token counting (uses `tiktoken`).
 *   `--max-tokens` : maximum tokens _per output part_ (if exceeded, the output is split into parts).
-    *   Note: this does not perform hard splitting inside single files. If a single file exceeds `--max-tokens` by itself, it will still be placed whole into a part (and that part may exceed the limit).
+*   Note: this does not perform hard splitting inside single files. If a single file exceeds `--max-tokens` by itself, it will still be placed whole into a part (and that part may exceed the limit).
 *   `--warn-tokens` : print a warning when a part exceeds this token threshold.
+*   `--interactive, -i` : Interactive Mode: Select or deselect files interactively using arrow keys, with the ability to quit immediately by pressing ESC.
 *   `--tree` : include tree view in the generated context.
 *   `--tree-only` : print only the tree and exit.
 *   `--prompt-no-header` : do not prepend the descriptive header.
@@ -154,19 +170,30 @@ cd aicontextator
 2.  Create virtualenv and install dev deps:
 
 ```
-python -m venv .venv
+uv venv
 ```
 ```
 source .venv/bin/activate
 ```
 ```
-pip install -e '.[test]'
+uv pip install -e '.[dev]'
 ```
 
-3.  Run tests:
+### Utility:
 
+#### Run test
 ```
-pytest
+uv run test
+```
+
+#### Check code
+```
+uv run lint
+```
+
+#### Format the code
+```
+uv run format
 ```
 
 * * *

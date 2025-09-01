@@ -1,6 +1,10 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "aicontextator"
-version = "0.1.5"
+version = "0.1.8"
 description = "A smart CLI tool that bundles project files into a single, LLM-ready context string. It respects .gitignore, counts tokens, and handles large projects by splitting the output."
 authors = [
     { name = "David Galet", email = "davidgalet@gmail.com" },
@@ -9,17 +13,23 @@ license = "MIT"
 requires-python = ">=3.9"
 dependencies = [
     "click>=8.0",
+    "detect-secrets>=1.5.0",
     "pathspec>=0.12",
     "pyperclip>=1.9.0",
     "tiktoken>=0.11.0",
     "tqdm>=4.67.1",
+    "trufflehog>=2.2.1",
 ]
 
 [project.scripts]
 aicontextator = "aicontextator:cli"
+format = "scripts:format"
+lint = "scripts:lint"
+test = "scripts:test"
 
 [project.optional-dependencies]
-test = [
+dev = [
     "pytest",
-    "pytest-mock"
+    "pytest-mock",
+    "ruff",
 ]
