@@ -16,6 +16,7 @@ dependencies = [
     "detect-secrets>=1.5.0",
     "pathspec>=0.12",
     "pyperclip>=1.9.0",
+    "questionary>=2.1.1",
     "tiktoken>=0.11.0",
     "tqdm>=4.67.1",
     "trufflehog>=2.2.1",

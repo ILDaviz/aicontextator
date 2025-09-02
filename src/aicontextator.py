@@ -9,13 +9,12 @@ from tqdm import tqdm
 import pathspec
 import tiktoken
 import json
-import subprocess
-import tempfile
 import hashlib
 from typing import Any, Dict, List
 from detect_secrets.core.secrets_collection import SecretsCollection
 from detect_secrets.settings import default_settings
-import curses
+import questionary
+from questionary import Style
 
 
 # --- Utility Functions ---
@@ -550,88 +549,43 @@ def checkSecurityIssue(filtered_files):
     return secrets_report
 
 
-def interactive_file_selector(file_list):
-    """Interactive file selector with a scrollable list using curses."""
-    selected_files = set()
-    display_limit = 25  # Number of files shown at a time
+def interactive_file_selector(file_list: List[Path]) -> set[Path]:
+    """
+    Interactive file selector using the questionary library.
+    Allows users to select files from a checklist.
+    """
+    if not file_list:
+        return set()
 
-    def draw_menu(stdscr):
-        curses.start_color()
-        curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_WHITE)  # Highlight color
-        curses.init_pair(2, curses.COLOR_WHITE, curses.COLOR_BLACK)  # Default color
+    root_path = Path.cwd() # O la root_dir del progetto se disponibile qui
+    try:
+        file_map = {str(p.relative_to(root_path)): p for p in file_list}
+    except ValueError:
+        file_map = {str(p): p for p in file_list}
 
-        current_row = 0
-        offset = 0  # For scrolling
-        max_rows = len(file_list)
+    sorted_choices = sorted(file_map.keys())
 
-        while True:
-            stdscr.clear()
-            stdscr.addstr(
-                0,
-                0,
-                "Use ↑/↓/j/k to scroll, SPACE to toggle selection, 'a' to select all, ENTER to confirm, ESC to quit",
-            )
-            stdscr.addstr(1, 0, "-" * 80)
+    custom_style = Style([
+        ('qmark', 'fg:#cc5454 bold'),
+        ('question', 'bold'),                 
+        ('pointer', 'fg:#cc5454 bold'),        
+        ('highlighted', 'fg:#cc5454 bold'),    
+        ('selected', 'fg:#00a600 bold'),      
+        ('instruction', 'fg:#858585 italic'), 
+        ('text', ''),                         
+    ])
 
-            for idx in range(display_limit):
-                file_idx = offset + idx
-                if file_idx >= max_rows:
-                    break
-                file = file_list[file_idx]
-                prefix = "[X]" if file in selected_files else "[ ]"
+    selected_paths_str = questionary.checkbox(
+        "Select the files to add to the context.",
+        choices=sorted_choices,
+        instruction="Use ↑/↓/j/k to scroll, SPACE to toggle selection, 'a' to select all, ENTER to confirm, ESC to quit",
+        style=custom_style,
+    ).ask()
 
-                if file_idx == current_row:
-                    stdscr.attron(curses.color_pair(1))
-                    stdscr.addstr(idx + 2, 0, f"{prefix} {file}")
-                    stdscr.attroff(curses.color_pair(1))
-                else:
-                    stdscr.attron(curses.color_pair(2))
-                    stdscr.addstr(idx + 2, 0, f"{prefix} {file}")
-                    stdscr.attroff(curses.color_pair(2))
+    if selected_paths_str is None:
+        raise SystemExit("Interactive selection cancelled by the user. Bye!")
 
-            # Add ellipsis indicators if there are more files above or below
-            if offset > 0:
-                stdscr.addstr(2, 78, "↑")
-            if offset + display_limit < max_rows:
-                stdscr.addstr(display_limit + 1, 78, "↓")
-
-            stdscr.addstr(display_limit + 3, 0, "-" * 80)
-            stdscr.addstr(
-                display_limit + 4,
-                0,
-                f"Selected: {len(selected_files)} / {len(file_list)}",
-            )
-
-            key = stdscr.getch()
-            if key in (curses.KEY_DOWN, ord("j")):
-                if current_row < max_rows - 1:
-                    current_row += 1
-                    if current_row >= offset + display_limit:
-                        offset += 1
-            elif key in (curses.KEY_UP, ord("k")):
-                if current_row > 0:
-                    current_row -= 1
-                    if current_row < offset:
-                        offset -= 1
-            elif key == ord(" "):
-                file = file_list[current_row]
-                if file in selected_files:
-                    selected_files.remove(file)
-                else:
-                    selected_files.add(file)
-            elif key == ord("a"):
-                if len(selected_files) < len(file_list):
-                    selected_files.update(file_list)
-                else:
-                    selected_files.clear()
-            elif key == 27:  # ESC key
-                raise SystemExit("Interactive mode canceled by user.")
-            elif key == 10:  # ENTER key
-                break
-
-    curses.wrapper(draw_menu)
-    return selected_files
-
+    return {file_map[path_str] for path_str in selected_paths_str}
 
 if __name__ == "__main__":
     cli()

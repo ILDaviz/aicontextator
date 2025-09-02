@@ -13,7 +13,7 @@ Key features
 *   ✂️ Custom ignore rules: use a `.contextignore` file for project-specific exclusions.
 *   📝 Structured JSON Output: Generate a detailed JSON file with project structure, file contents, token counts, and security warnings for programmatic use with `--format json`.
 *   🎛 Interactive Mode: Select or deselect files interactively using arrow keys.
-*   🛡️ Built-in Secret Scanning: Proactively scans the content of included files using the detect-secrets engine to identify and warn about potential secrets (like API keys) before they are added to the context
+*   🛡️ **Built-in Secret Scanning**: Proactively scans the content of included files using the detect-secrets engine to identify and warn about potential secrets (like API keys) before they are added to the context
 *   🔒 Secure defaults: excludes `.env` and `.env.*` files by default to reduce secret leakage.
 *   🤖 Token-aware: estimates tokens using `tiktoken`.
 *   🧩 Automatic splitting: splits output into multiple parts when a per-part token limit is reached.
@@ -81,7 +81,7 @@ aicontextator --tree-only
 aicontextator --prompt-no-header
 ```
 
-#### Select or deselect files interactively using arrow keys:
+#### The code includes a fully functional interactive mode, triggered by the --interactive flag, which allows the user to select files using a keyboard-navigable interface:
 ```
 aicontextator --interactive
 ```
@@ -202,7 +202,6 @@ Roadmap / ideas
 ---------------
 
 *   Automatic summarization of long files to reduce token usage.
-*   Sensitive-pattern scanner (warn-only, opt-in).
 
 * * *
 
