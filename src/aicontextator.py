@@ -557,7 +557,7 @@ def interactive_file_selector(file_list: List[Path]) -> set[Path]:
     if not file_list:
         return set()
 
-    root_path = Path.cwd()  # O la root_dir del progetto se disponibile qui
+    root_path = Path.cwd()
     try:
         file_map = {str(p.relative_to(root_path)): p for p in file_list}
     except ValueError:
