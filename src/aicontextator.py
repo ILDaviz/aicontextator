@@ -557,7 +557,7 @@ def interactive_file_selector(file_list: List[Path]) -> set[Path]:
     if not file_list:
         return set()
 
-    root_path = Path.cwd() # O la root_dir del progetto se disponibile qui
+    root_path = Path.cwd()  # O la root_dir del progetto se disponibile qui
     try:
         file_map = {str(p.relative_to(root_path)): p for p in file_list}
     except ValueError:
@@ -565,15 +565,17 @@ def interactive_file_selector(file_list: List[Path]) -> set[Path]:
 
     sorted_choices = sorted(file_map.keys())
 
-    custom_style = Style([
-        ('qmark', 'fg:#cc5454 bold'),
-        ('question', 'bold'),                 
-        ('pointer', 'fg:#cc5454 bold'),        
-        ('highlighted', 'fg:#cc5454 bold'),    
-        ('selected', 'fg:#00a600 bold'),      
-        ('instruction', 'fg:#858585 italic'), 
-        ('text', ''),                         
-    ])
+    custom_style = Style(
+        [
+            ("qmark", "fg:#cc5454 bold"),
+            ("question", "bold"),
+            ("pointer", "fg:#cc5454 bold"),
+            ("highlighted", "fg:#cc5454 bold"),
+            ("selected", "fg:#00a600 bold"),
+            ("instruction", "fg:#858585 italic"),
+            ("text", ""),
+        ]
+    )
 
     selected_paths_str = questionary.checkbox(
         "Select the files to add to the context.",
@@ -586,6 +588,7 @@ def interactive_file_selector(file_list: List[Path]) -> set[Path]:
         raise SystemExit("Interactive selection cancelled by the user. Bye!")
 
     return {file_map[path_str] for path_str in selected_paths_str}
+
 
 if __name__ == "__main__":
     cli()
