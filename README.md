@@ -152,6 +152,37 @@ Filtering & security
 *   The tool respects `.gitignore` and supports a `.contextignore` file for extra ignore patterns.
 *   Default exclude patterns include `.env` and `.env.*` to avoid leaking environment secrets. Always double-check your `.gitignore` / `.contextignore` to be safe.
 
+* * *
+
+### Example context.txt
+
+```
+The following text is a collection of source code files from a software project.  
+Each file is delimited by a header line starting with "--- FILE:".  
+Use only this content as the source of truth when answering questions.  
+
+Project structure:
+myapp/
+├── README.md
+├── src
+│   └── main.py
+└── tests
+    └── test_main.py
+
+<<<
+--- FILE: README.md ---
+# MyApp
+Simple example project.
+
+--- FILE: src/main.py ---
+print("hello world")
+
+--- FILE: tests/test_main.py ---
+def test_hello():
+    assert True
+>>>
+```
+
 
 * * *
 
