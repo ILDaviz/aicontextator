@@ -67,7 +67,7 @@ def test_generate_context_concatenation(project_structure: Path):
         tree_view="",
     )
 
-    expected_content = "--- FILE: src/main.py ---\n\nprint('hello')\n\n"
+    expected_content = "<<<\n\n--- FILE: src/main.py ---\nprint('hello')\n>>>\n"
 
     assert len(parts) == 1
     assert parts[0] == expected_content
@@ -161,7 +161,7 @@ def test_cli_with_prompt_no_header_flag(project_structure: Path):
         assert result.exit_code == 0
         content = (Path(td) / "no_header_test.txt").read_text()
         assert not content.startswith("The following text is a collection")
-        assert content.startswith("--- FILE:")
+        assert content.startswith("<<<\n\n--- FILE:")
 
 
 def test_env_files_excluded_by_default(project_structure: Path):

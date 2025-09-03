@@ -245,6 +245,10 @@ def generate_context(
     if tree_view:
         preliminary_text += f"The project structure is as follows:\n{tree_view}\n\n"
 
+    preliminary_text += (
+        "<<<\n"
+    )
+
     if preliminary_text:
         prelim_tokens = _count(preliminary_text)
         current_part_builder.write(preliminary_text)
@@ -264,11 +268,11 @@ def generate_context(
     for file_path in tqdm(filtered_files, desc="Processing files"):
         try:
             relative_path = file_path.relative_to(root_dir)
-            header = f"--- FILE: {relative_path.as_posix()} ---\n\n"
+            header = f"\n--- FILE: {relative_path.as_posix()} ---\n"
             with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
                 content = f.read()
 
-            file_block = header + content + "\n\n"
+            file_block = header + content + "\n"
             block_tokens = _count(file_block)
 
             if max_tokens and block_tokens > max_tokens:
@@ -318,6 +322,8 @@ def generate_context(
 
         except Exception as e:
             click.secho(f"Error reading {file_path}: {e}", fg="yellow")
+
+    current_part_builder.write(">>>\n")
 
     if current_part_builder.tell() > 0:
         context_parts.append(current_part_builder.getvalue())
