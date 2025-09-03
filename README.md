@@ -158,7 +158,7 @@ Filtering & security
 
 ```
 The following text is a collection of source code files from a software project.  
-Each file is delimited by a header line starting with "--- FILE:".  
+Each file is delimited by a header line starting with "--- FILE: [filepath]".  
 Use only this content as the source of truth when answering questions.  
 
 Project structure:

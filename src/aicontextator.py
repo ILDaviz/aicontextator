@@ -239,8 +239,8 @@ def generate_context(
     if not prompt_no_header:
         preliminary_text += (
             "The following text is a collection of source code files from a software project. "
-            "Each file is delimited by a '--- FILE: [filepath] ---' header.\n"
-            "Please use this code as the primary source of truth to answer questions about the project.\n\n"
+            "Each file is delimited by a header line starting with \"--- FILE: [filepath]\".\n"
+            "Use only this content as the source of truth when answering questions.\n\n"
         )
     if tree_view:
         preliminary_text += f"The project structure is as follows:\n{tree_view}\n\n"
